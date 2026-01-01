@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Auliya Massage Bali</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --card:#111827; --text:#e5e7eb; --muted:#9ca3af;
+      --brand:#22c55e; --ring:rgba(34,197,94,.25);
+    }
+    body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#070a0f, #0b0f14);color:var(--text);}
+    header{padding:48px 20px;max-width:1100px;margin:auto;}
+    h1{margin:0 0 10px;font-size:34px;letter-spacing:.2px;}
+    p{margin:0;color:var(--muted);line-height:1.6}
+    .wrap{max-width:1100px;margin:auto;padding:0 20px 80px;}
+    .grid{display:grid; gap:16px; grid-template-columns:repeat(1,minmax(0,1fr));}
+    @media(min-width:640px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+    @media(min-width:980px){.grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
+    .card{
+      background:rgba(17,24,39,.8);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px; overflow:hidden; cursor:pointer;
+      transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    }
+    .card:hover{transform:translateY(-2px); border-color:rgba(34,197,94,.35); box-shadow:0 10px 30px rgba(0,0,0,.35);}
+    .thumb{height:190px; background:#0f172a; overflow:hidden;}
+    .thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+    .meta{padding:14px 14px 16px;}
+    .title{font-weight:700;margin:0 0 6px;}
+    .sub{margin:0;color:var(--muted);font-size:14px;}
+    .badge{
+      display:inline-block;margin-top:10px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      color:#d1d5db;font-size:12px;
+      background:rgba(255,255,255,.04);
+    }
+
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:18px;}
+    .modal{width:min(820px,100%);background:rgba(17,24,39,.95);border:1px solid rgba(255,255,255,.10);border-radius:18px;overflow:hidden;box-shadow:0 20px 70px rgba(0,0,0,.55);}
+    .modal-grid{display:grid;grid-template-columns:1fr;}
+    @media(min-width:820px){.modal-grid{grid-template-columns:1.05fr .95fr;}}
+    .modal-img{min-height:260px;background:#0f172a;}
+    .modal-img img{width:100%;height:100%;object-fit:cover;display:block;}
+    .modal-body{padding:18px;}
+    .modal-body h2{margin:0 0 8px;font-size:22px;}
+    .modal-body .desc{margin:0 0 14px;color:var(--muted);}
+    .prices{border-top:1px solid rgba(255,255,255,.08);padding-top:12px;margin-top:12px;}
+    .prices h3{margin:0 0 8px;font-size:14px;color:#d1d5db;letter-spacing:.3px;text-transform:uppercase;}
+    .price-line{display:flex;justify-content:space-between;gap:12px;padding:7px 0;color:#e5e7eb;}
+    .price-line span:last-child{color:#f3f4f6;font-weight:700;}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .btn{appearance:none;border:none;cursor:pointer;padding:12px 14px;border-radius:12px;font-weight:700;background:rgba(255,255,255,.08);color:var(--text);border:1px solid rgba(255,255,255,.12);}
+    .btn:focus{outline:3px solid var(--ring);}
+    .btn-whatsapp{background:var(--brand);color:#052e14;border-color:rgba(0,0,0,.1);}
+    .close{float:right;background:transparent;border:none;color:#cbd5e1;font-size:22px;cursor:pointer}
+    footer{max-width:1100px;margin:auto;padding:18px 20px 40px;color:var(--muted);font-size:14px;}
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Auliya Massage Bali</h1>
+  <p>Professional on-call massage service (villa • hotel • home). Click a service to see details & book via WhatsApp.</p>
+</header>
+
+<section class="wrap">
+  <div class="grid" id="services"></div>
+</section>
+
+<footer>
+  Contact: <strong>+62 813-3766-6169</strong> • Service areas: Ubud, Denpasar, Sanur, Kuta, Seminyak, Jimbaran, Tibubeneng, Nusa Dua, Uluwatu, Cemagi
+</footer>
+
+<div class="modal-backdrop" id="backdrop" role="dialog" aria-modal="true">
+  <div class="modal" role="document">
+    <div class="modal-grid">
+      <div class="modal-img"><img id="mImg" alt=""></div>
+      <div class="modal-body">
+        <button class="close" id="mClose" aria-label="Close">&times;</button>
+        <h2 id="mTitle"></h2>
+        <p class="desc" id="mDesc"></p>
+        <div class="prices" id="mPrices"></div>
+        <div class="actions">
+          <a class="btn btn-whatsapp" id="mBook" target="_blank" rel="noopener">Book on WhatsApp</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const phoneIntl = "6281337666169"; // WhatsApp format (no +, no 0)
+
+  const services = [
+    { name:"Balinese Massage", img:"images/1-balinese.jpg.jpeg",
+      desc:"Traditional full-body massage combining stretches, acupressure, and oils to relieve stress and tension.",
+      prices:[["60 minutes","IDR 300K"],["90 minutes","IDR 450K"],["120 minutes","IDR 500K"]] },
+
+    { name:"Deep Tissue Massage", img:"images/2-deep-tissue.jpg.jpeg",
+      desc:"Strong pressure to release deep muscle knots—ideal for chronic tension and sore shoulders/back.",
+      prices:[["60 minutes","IDR 350K"],["90 minutes","IDR 500K"],["120 minutes","IDR 650K"]] },
+
+    { name:"Swedish Massage", img:"images/3-swedish.jpg.jpeg",
+      desc:"Classic relaxation massage with long strokes to improve circulation and calm the nervous system.",
+      prices:[["60 minutes","IDR 250K"],["90 minutes","IDR 375K"],["120 minutes","IDR 500K"]] },
+
+    { name:"Thai Massage", img:"images/4-thai.jpg.jpeg",
+      desc:"Assisted stretching and pressure points to improve flexibility, reduce tension, and restore energy.",
+      prices:[["60 minutes","IDR 300K"],["90 minutes","IDR 450K"],["120 minutes","IDR 500K"]] },
+
+    { name:"Lomi Lomi Massage", img:"images/5-lomi-lomi.jpg.jpeg",
+      desc:"Hawaiian-style flowing strokes with hands and forearms for deep relaxation and harmony.",
+      prices:[["60 minutes","IDR 300K"],["90 minutes","IDR 450K"],["120 minutes","IDR 500K"]] },
+
+    { name:"Aromatherapy Massage", img:"images/6-aromatherapy.jpg.jpeg",
+      desc:"Relaxing massage using essential oils to enhance mood, improve sleep quality, and reduce stress.",
+      prices:[["60 minutes","IDR 300K"],["90 minutes","IDR 450K"],["120 minutes","IDR 500K"]] },
+
+    { name:"Pregnancy Massage", img:"images/7-pregnancy.jpg.jpeg",
+      desc:"Gentle massage for pregnant women to reduce back pain, swelling, and stress (by request).",
+      prices:[["60 minutes","IDR 250K"],["90 minutes","IDR 375K"],["120 minutes","IDR 500K"]] },
+
+    { name:"Four Hands Massage", img:"images/8-four-hands.jpg.jpeg",
+      desc:"Luxurious synchronized massage by two therapists for a deeper relaxation experience.",
+      prices:[["90 minutes","IDR 750K"],["120 minutes","IDR 950K"]] },
+
+    { name:"Lymphatic Massage", img:"images/9-lymphatic.jpg.jpeg",
+      desc:"Light-pressure technique to support lymph flow, reduce swelling, and promote detox and wellness.",
+      prices:[["90 minutes","IDR 650K"],["120 minutes","IDR 800K"]] },
+
+    { name:"Massage + Body Scrub", img:"images/10-massage-scrub.jpg.jpeg",
+      desc:"Complete spa package: relaxing massage plus body scrub for smoother, refreshed skin.",
+      prices:[["90 minutes","IDR 450K"],["120 minutes","IDR 650K"]] },
+  ];
+
+  const servicesEl = document.getElementById("services");
+  const backdrop = document.getElementById("backdrop");
+  const mImg = document.getElementById("mImg");
+  const mTitle = document.getElementById("mTitle");
+  const mDesc = document.getElementById("mDesc");
+  const mPrices = document.getElementById("mPrices");
+  const mBook = document.getElementById("mBook");
+  const mClose = document.getElementById("mClose");
+
+  function waLink(serviceName){
+    const msg = encodeURIComponent(
+      `Hello Auliya Massage Bali, I want to book: ${serviceName}. ` +
+      `My location is: (villa/hotel area). Preferred time: (time).`
+    );
+    return `https://wa.me/${phoneIntl}?text=${msg}`;
+  }
+
+  function openModal(s){
+    mImg.src = s.img;
+    mImg.alt = s.name;
+    mTitle.textContent = s.name;
+    mDesc.textContent = s.desc;
+
+    mPrices.innerHTML = `<h3>Prices</h3>` + s.prices.map(p =>
+      `<div class="price-line"><span>${p[0]}</span><span>${p[1]}</span></div>`
+    ).join("");
+
+    mBook.href = waLink(s.name);
+
+    backdrop.style.display = "flex";
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeModal(){
+    backdrop.style.display = "none";
+    document.body.style.overflow = "";
+  }
+
+  services.forEach((s) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="thumb"><img src="${s.img}" alt="${s.name}"></div>
+      <div class="meta">
+        <p class="title">${s.name}</p>
+        <p class="sub">${s.desc}</p>
+        <span class="badge">Click for details</span>
+      </div>
+    `;
+    card.addEventListener("click", () => openModal(s));
+    servicesEl.appendChild(card);
+  });
+
+  backdrop.addEventListener("click", (e) => { if(e.target === backdrop) closeModal(); });
+  mClose.addEventListener("click", closeModal);
+  document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeModal(); });
+</script>
+
+</body>
+</html>
